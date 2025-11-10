@@ -1,0 +1,6 @@
+bert-base-chinese/
+linux/
+__pycache__/
+.vscode/
+swanlab/
+test.py

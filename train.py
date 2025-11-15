@@ -3,11 +3,11 @@ from torch.utils.data import DataLoader
 from transformers import BertForTokenClassification
 from tqdm import tqdm
 from data_pre_ import NERDataset
-
+from model import BertNerModel
 import swanlab
 from metric import id2label_pred,compute,entity_level_f1
-from myConfig import myconfig
-
+from my_config.myConfig import my_Config
+import time
 
 def train(model):
     train_dataset = NERDataset(myconfig,mode='train')
@@ -28,7 +28,7 @@ def train(model):
             optimizer.zero_grad()
             outputs= model(input_ids = input_ids,attention_mask = attention_mask,labels = labels) 
             #训练需要给真实标签，但不需要预测标签，只需要loss，不计算指标
-            train_loss = outputs.loss
+            train_loss = outputs['loss']
            
             train_loss.backward()
             optimizer.step()
@@ -56,7 +56,7 @@ def evaluate(model):
 
             #验证的时候要真实标签也需要返回预测标签，要loss，要指标
             outputs = model(input_ids = input_ids,attention_mask = attention_mask,labels = labels) #感觉直接给batch是不是就可以？ 
-            pred_ids = torch.argmax(outputs.logits,dim=-1)
+            pred_ids = torch.argmax(outputs['logits'],dim=-1)
             true_labels,pred_labels = id2label_pred(pred_ids=pred_ids,label_ids=labels,id2label=myconfig.id_2_tag)
             all_true_labels.extend(true_labels)
             all_pred_labels.extend(pred_labels)
@@ -90,7 +90,7 @@ def test(model):
             #验证的时候要真实标签也需要返回预测标签，要loss，要指标
             outputs = model(input_ids = input_ids,attention_mask =attention_mask) 
 
-            pred_ids = torch.argmax(outputs.logits,dim=-1)
+            pred_ids = torch.argmax(outputs['logits'],dim=-1)
             #调用评价指标
             true_labels,pred_labels = id2label_pred(pred_ids=pred_ids,label_ids=labels,id2label=myconfig.id_2_tag)
             
@@ -107,12 +107,16 @@ def test(model):
 
 
 if __name__ == '__main__':
-    model = BertForTokenClassification.from_pretrained(myconfig.bert_path,
-                                                   num_labels=myconfig.class_num,
-                                                   id2label=myconfig.id_2_tag,
-                                                   label2id=myconfig.tag_2_id
-                                                   ).to(myconfig.device)
-    swanlab_run = swanlab.init(project="NER",experiment_name='命名实体识别')
+    # model = BertForTokenClassification.from_pretrained(myconfig.bert_path,
+    #                                                num_labels=myconfig.class_num,
+    #                                                id2label=myconfig.id_2_tag,
+    #                                                label2id=myconfig.tag_2_id
+    #                                                ).to(myconfig.device)
+    myconfig = my_Config()
+    model = BertNerModel(myConfig=myconfig).to(myconfig.device)
+    swanlab_run = swanlab.init(project="NER",
+                               experiment_name='NER'+myconfig.dataset_type+myconfig.model_type
+                               +time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
     train(model)
     test(model)
 

@@ -16,8 +16,8 @@ def entity_level_f1(y_true, y_pred):
         pred_entity_all += len(pred_entity)
         true_entity_all += len(true_entity)
     
-    P = TP / pred_entity_all + 1e-10
-    R = TP / true_entity_all + 1e-10
+    P = TP / (pred_entity_all + 1e-10)
+    R = TP / (true_entity_all + 1e-10)
     
     # print('预测实体',pred_entity)
     # print('真实实体',true_entity)

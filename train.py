@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from transformers import BertForTokenClassification
+from transformers import BertForTokenClassification,get_linear_schedule_with_warmup
 from tqdm import tqdm
 from data_pre_ import NERDataset
 from model import BertNerModel
@@ -13,8 +13,15 @@ def train(model):
     train_dataset = NERDataset(myconfig,mode='train')
     train_dataloader = DataLoader(train_dataset,batch_size=myconfig.batch_size,shuffle=True,collate_fn=train_dataset.collate_fn)
     optimizer = torch.optim.Adam(model.parameters(),lr=myconfig.learning_rate)
- 
-    batch_counter = 1
+
+    num_training_steps = len(train_dataloader) * myconfig.epochs
+    num_warmup_steps = int(0.1 * num_training_steps)  # 10% warmup
+    scheduler = get_linear_schedule_with_warmup(
+    optimizer,
+    num_warmup_steps=num_warmup_steps,
+    num_training_steps=num_training_steps
+    )
+    step = 1
     for epoch in range(myconfig.epochs):
         total_loss = 0.0
         model.train()
@@ -32,15 +39,21 @@ def train(model):
            
             train_loss.backward()
             optimizer.step()
+            scheduler.step()
+            current_lr = optimizer.param_groups[0]['lr']
+            swanlab_run.log({
+                "train/learning_rate": current_lr
+            })
             total_loss += train_loss.item()
-            swanlab_run.log({'batch_train_loss':train_loss.item()})
-            batch_counter += 1
+            if step % 30 == 0:
+                swanlab_run.log({'train/batch_loss':train_loss.item()})
+            step += 1
 
         avg_loss = total_loss / len(train_dataloader)
         
         res = evaluate(model)
         print('Loss:{:8.4f}|p:{:.2f}|R:{:.2f}|F1:{:.2f}'.format(avg_loss,res['p'],res['R'],res['f1']))
-        swanlab_run.log({'train_avg_loss':avg_loss,'Dev-Precision':res['p'],'Dev-Recall':res['R'],'Dev-f1':res['f1']})
+        swanlab_run.log({'train/avg_loss':avg_loss,'Dev/Precision':res['p'],'Dev/Recall':res['R'],'Dev/f1':res['f1']})
 def evaluate(model):
     dev_dataset = NERDataset(config=myconfig,mode='dev')
     dev_dataloader = DataLoader(dev_dataset,batch_size=myconfig.batch_size,shuffle=False,collate_fn=dev_dataset.collate_fn)
@@ -101,7 +114,7 @@ def test(model):
     print("Pred:", len(all_pred_labels[0]))
     # precision,recall,f1 = compute(true_labels=all_true_labels,pred_labels=all_pred_labels)
     precision,recall,f1 = entity_level_f1(y_pred=all_pred_labels,y_true=all_true_labels)
-    swanlab_run.log({'Test-Precision':precision,'Test-Recall':recall,'Test-f1':f1})
+    swanlab_run.log({'Test/Precision':precision,'Test/Recall':recall,'Test/f1':f1})
     print('P:{:.2f}|R:{:.2f}|F1:{:.2f}'.format(precision,recall,f1))
     
 

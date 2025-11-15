@@ -8,20 +8,25 @@ import swanlab
 from metric import id2label_pred,compute,entity_level_f1
 from my_config.myConfig import my_Config
 import time
+import os
 
 def train(model):
+    
     train_dataset = NERDataset(myconfig,mode='train')
     train_dataloader = DataLoader(train_dataset,batch_size=myconfig.batch_size,shuffle=True,collate_fn=train_dataset.collate_fn)
     optimizer = torch.optim.Adam(model.parameters(),lr=myconfig.learning_rate)
-
-    num_training_steps = len(train_dataloader) * myconfig.epochs
-    num_warmup_steps = int(0.1 * num_training_steps)  # 10% warmup
+    #加warm_up 
+    num_training_steps = len(train_dataloader) * myconfig.epochs #训练的所有步数
+    # 选取所有步数的10%做warmup ,学习率会从0上升到2e-5，后面再慢慢下降直至为0
+    num_warmup_steps = int(0.1 * num_training_steps)  
+    #
     scheduler = get_linear_schedule_with_warmup(
     optimizer,
     num_warmup_steps=num_warmup_steps,
     num_training_steps=num_training_steps
     )
     step = 1
+    best_f1 = 0.0
     for epoch in range(myconfig.epochs):
         total_loss = 0.0
         model.train()
@@ -50,10 +55,17 @@ def train(model):
             step += 1
 
         avg_loss = total_loss / len(train_dataloader)
-        
+        #验证部分
         res = evaluate(model)
         print('Loss:{:8.4f}|p:{:.2f}|R:{:.2f}|F1:{:.2f}'.format(avg_loss,res['p'],res['R'],res['f1']))
         swanlab_run.log({'train/avg_loss':avg_loss,'Dev/Precision':res['p'],'Dev/Recall':res['R'],'Dev/f1':res['f1']})
+        #保留f1值最大时候的模型参数
+        if res['f1'] > best_f1:
+            best_f1 = res['f1']
+            os.makedirs("checkpoints", exist_ok=True)
+            torch.save(model.state_dict(), "checkpoints/best_model.pth")
+            print(f"Saved new best model with F1={best_f1:.4f}")
+
 def evaluate(model):
     dev_dataset = NERDataset(config=myconfig,mode='dev')
     dev_dataloader = DataLoader(dev_dataset,batch_size=myconfig.batch_size,shuffle=False,collate_fn=dev_dataset.collate_fn)
@@ -90,7 +102,12 @@ def evaluate(model):
 def test(model):
     test_dataset = NERDataset(config=myconfig,mode='test')
     test_dataloader = DataLoader(test_dataset,batch_size=myconfig.batch_size,shuffle=False,collate_fn=test_dataset.collate_fn)
-    
+    checkpoints_path = 'checkpoints/best_model.pth'
+    if os.path.exists(checkpoints_path):
+        model.load_state_dict(torch.load(checkpoints_path))
+        print(f"已加载保存权重")
+    else:
+        print(f"权重文件不存在")
     #累积标签
     all_true_labels = []
     all_pred_labels = []

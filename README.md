@@ -1,9 +1,5 @@
 # Named Entity Recognition (NER) Project
 
-[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/pytorch-2.0+-orange)](https://pytorch.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
 ---
 
 ## 🚀 项目简介

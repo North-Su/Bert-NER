@@ -4,4 +4,4 @@ linux/
 __pycache__/
 .vscode/
 swanlab/
-test.pypre_model/
+test.py

@@ -6,7 +6,7 @@ from data_pre_ import NERDataset
 from model import BertNerModel
 import swanlab
 from metric import id2label_pred,compute,entity_level_f1
-from my_config.myConfig import my_Config
+from myConfig import my_Config
 import time
 import os
 
@@ -63,7 +63,7 @@ def train(model):
         if res['f1'] > best_f1:
             best_f1 = res['f1']
             os.makedirs("checkpoints", exist_ok=True)
-            torch.save(model.state_dict(), "checkpoints/best_model.pth")
+            torch.save(model.state_dict(), 'checkpoints/'+myconfig.dataset_type+'_'+myconfig.model_type+'_best_model.pth')
             print(f"Saved new best model with F1={best_f1:.4f}")
 
 def evaluate(model):
@@ -102,7 +102,7 @@ def evaluate(model):
 def test(model):
     test_dataset = NERDataset(config=myconfig,mode='test')
     test_dataloader = DataLoader(test_dataset,batch_size=myconfig.batch_size,shuffle=False,collate_fn=test_dataset.collate_fn)
-    checkpoints_path = 'checkpoints/best_model.pth'
+    checkpoints_path = 'checkpoints/'+myconfig.dataset_type+'_'+myconfig.model_type+'_best_model.pth'
     if os.path.exists(checkpoints_path):
         model.load_state_dict(torch.load(checkpoints_path))
         print(f"已加载保存权重")

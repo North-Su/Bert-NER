@@ -24,6 +24,7 @@ NER/
 ├── data_pre_.py           # 数据预处理
 ├── metric.py.py           # P、R、F1指标评估函数
 ├── model.py               # 模型定义
+├── myConfig.py            # 生成配置文件
 ├── pre_model_download.py  # 预训练模型权重下载
 ├── train_spilt.py         # 切分训练集、验证集文件
 ├── train_evaluate.py      # 训练、推理函数
@@ -84,12 +85,11 @@ data/
 
 ## ⚙ 配置文件
 
-本项目所有的配置文件均写于my_config文件夹中，配置文件目录结构：
+本项目所有的配置文件均写于my_config文件夹的.yaml文件中，配置文件目录结构：
 
 ```
 my_config/
 ├── config.yaml  #所有参数写成.yaml文件
-├── myConfig.py  #读取.yaml文件生成cofig参数类
 ```
 
 特殊说明：
@@ -106,6 +106,7 @@ models:
 train:
   ...
 ```
+参数具体由myConfig.py文件生成myConfig类，具体参数会变成类中的属性，调用时传递实例化的类属性即可。
 
 ## ⚡ 快速开始
 
@@ -138,3 +139,4 @@ train:
 ### 测试
 
 加载已保存的权重，进行测试，返回`Precision（精确率）、Recall（召回率）、F1-score（F1 分数）。`
+

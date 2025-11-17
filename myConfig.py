@@ -38,7 +38,7 @@ class my_Config:
             setattr(self, k, v)
 
         # === 加载训练超参 ===
-        train_cfg = cfg["train"]
+        train_cfg = cfg["train"][dataset_key]
         for k, v in train_cfg.items():
             setattr(self, k, v)
 
@@ -48,5 +48,5 @@ class my_Config:
     def __repr__(self):
         return str(self.__dict__)
 
-# cfg = my_Config()
-# print(cfg)
+cfg = my_Config()
+print(cfg)

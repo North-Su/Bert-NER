@@ -29,8 +29,15 @@ models:
     hidden_size: 768
 
 train:
-  epochs: 20
-  batch_size: 64
-  learning_rate: !!float 4e-5
-  max_length: 128
-  dropout: 0.1
+  weibo:
+    epochs: 20
+    batch_size: 32
+    learning_rate: !!float 4e-5
+    max_length: 128
+    dropout: 0.1
+  msra:
+    epochs: 10
+    batch_size: 128
+    learning_rate: !!float 2e-4
+    max_length: 128
+    dropout: 0.1

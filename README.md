@@ -77,7 +77,7 @@ O
 
 ```
 data/
-├── class.txt #标签信息
+├── label.txt #标签信息
 ├── train.txt 
 ├── dev.txt
 └── test.txt
@@ -85,7 +85,7 @@ data/
 
 ## ⚙ 配置文件
 
-本项目所有的配置文件均写于my_config文件夹的.yaml文件中，配置文件目录结构：
+本项目所有的配置文件均写于my_config文件夹中，配置文件目录结构：
 
 ```
 my_config/
@@ -95,7 +95,7 @@ my_config/
 特殊说明：
 
 ```
-因为项目包含两组预训练权重和两个数据集，为了更改模型和数据集方便，设置了run参数整体调控，后面的datasets和models中会具体设置当前使用的模型、数据集的具体信息，train中设置了模型的训练参数，具体详见config.yaml文件。
+因为项目包含两组预训练权重和两个数据集，为了更改模型和数据集方便，设置了run参数整体调控，后面的datasets和models中会具体设置当前使用的模型、数据集的具体信息，train中设置了模型的训练参数，鉴于数据集之间略有差异，故设计了不同的训练参数。具体详见config.yaml文件。
 run:
   dataset: weibo/msra
   model: bert-base/bert_wwm
@@ -106,6 +106,7 @@ models:
 train:
   ...
 ```
+
 参数具体由myConfig.py文件生成myConfig类，具体参数会变成类中的属性，调用时传递实例化的类属性即可。
 
 ## ⚡ 快速开始
@@ -134,9 +135,22 @@ train:
 - `Recall（召回率）`
 - `F1-score（F1 分数）`
 
-训练结束后，最佳模型（取F1值最好的模型权重）会保存至 `checkpoints/`。
+训练结束后，最佳模型（取F1值最好的模型权重）会保存至 `checkpoints/`文件夹下，具体命名为： “数据集名称+模型名称+best_model.pth”。
+
+训练过程中的一些指标曲线保存在Swanlab中，分为train、dev、test三个文件夹，可访问网站通过可视化曲线评判模型性能设置参数。
 
 ### 测试
 
 加载已保存的权重，进行测试，返回`Precision（精确率）、Recall（召回率）、F1-score（F1 分数）。`
+
+## ⭐ 结果参考
+
+以下结果为调参后得到的最优值：
+
+| 模型+数据集             | Precision（精确率） | Recall（召回率） | F1-score（F1 分数） |
+| ----------------------- | ------------------- | ---------------- | ------------------- |
+| weibo+bert-base-chinese | 0.65                | 0.70             | 0.67                |
+| weibo+chinese-bert-wwm  | 0.63                | 0.71             | 0.67                |
+| msra+bert-base-chinese  | 0.94                | 0.95             | 0.94                |
+| msra+chinese-bert-wwm   | 0.94                | 0.95             | 0.94                |
 

@@ -1,8 +1,8 @@
 run:
   dataset: msra
   # dataset: weibo
-  model: bert_wwm
-  # model: bert_base
+  # model: bert_wwm
+  model: bert_base
 
 datasets:
   msra:
@@ -37,7 +37,7 @@ train:
     dropout: 0.1
   msra:
     epochs: 10
-    batch_size: 128
+    batch_size: 256
     learning_rate: !!float 2e-4
     max_length: 128
     dropout: 0.1

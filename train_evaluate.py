@@ -17,7 +17,7 @@ def train(model):
     optimizer = torch.optim.Adam(model.parameters(),lr=myconfig.learning_rate)
     #加warm_up 
     num_training_steps = len(train_dataloader) * myconfig.epochs #训练的所有步数
-    # 选取所有步数的10%做warmup ,学习率会从0上升到2e-5，后面再慢慢下降直至为0
+    # 选取所有步数的10%做warmup ,学习率会从0上升到设置学习率，后面再慢慢下降直至为0
     num_warmup_steps = int(0.1 * num_training_steps)  
     #
     scheduler = get_linear_schedule_with_warmup(
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     myconfig = my_Config()
     model = BertNerModel(myConfig=myconfig).to(myconfig.device)
     swanlab_run = swanlab.init(project="NER",
-                               experiment_name='NER'+myconfig.dataset_type+myconfig.model_type
+                               experiment_name='NER'+myconfig.dataset_type+'_'+myconfig.model_type
                                +time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
     train(model)
     test(model)

@@ -48,5 +48,5 @@ class my_Config:
     def __repr__(self):
         return str(self.__dict__)
 
-cfg = my_Config()
-print(cfg)
+# cfg = my_Config()
+# print(cfg)

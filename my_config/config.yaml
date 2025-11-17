@@ -6,26 +6,26 @@ run:
 
 datasets:
   msra:
-    dataset_path: "/home/sulin/Bert_NER/data/"
+    dataset_path: "data/"
     dataset_name: "msra/"
     data_name: ".txt"
     class_num: 7
-    tag_file: "/home/sulin/Bert_NER/data/msra/label.txt"
+    tag_file: "data/msra/label.txt"
 
   weibo:
-    dataset_path: "/home/sulin/Bert_NER/data/"
+    dataset_path: "data/"
     dataset_name: "weibo/"
     data_name: ".txt"
     class_num: 17
-    tag_file: "/home/sulin/Bert_NER/data/weibo/label.txt"
+    tag_file: "data/weibo/label.txt"
 
 models:
   bert_wwm:
-    bert_path: "/home/sulin/Bert_NER/pre_model/chinese-bert-wwm"
+    bert_path: "pre_model/chinese-bert-wwm"
     hidden_size: 768
 
   bert_base:
-    bert_path: "/home/sulin/Bert_NER/pre_model/bert-base-chinese"
+    bert_path: "pre_model/bert-base-chinese"
     hidden_size: 768
 
 train:
